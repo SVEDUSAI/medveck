@@ -65,14 +65,16 @@ export async function bootstrap() {
   await fastify.register(superAdminRoutes, { prefix: '/api/super-admin' });
   await fastify.register(catalogRoutes, { prefix: '/api/catalog' });
 
-  // Socket.io
-  const io = new Server(httpServer, {
-    cors: {
-      origin: true,
-      credentials: true,
-    },
-  });
-  setupSocket(io, fastify);
+  // Socket.io (Only in non-Vercel environment)
+  if (!process.env.VERCEL) {
+    const io = new Server(httpServer, {
+      cors: {
+        origin: true,
+        credentials: true,
+      },
+    });
+    setupSocket(io, fastify);
+  }
 
   return { fastify, httpServer };
 }

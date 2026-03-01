@@ -12,23 +12,12 @@
             "config": {
                 "distDir": "dist"
             }
-        },
-        {
-            "src": "apps/mobile/package.json",
-            "use": "@vercel/static-build",
-            "config": {
-                "distDir": "dist"
-            }
         }
     ],
     "rewrites": [
         {
             "source": "/api/(.*)",
             "destination": "/apps/api/api/index.ts"
-        },
-        {
-            "source": "/mobile/(.*)",
-            "destination": "/apps/mobile/$1"
         },
         {
             "source": "/(.*)",
