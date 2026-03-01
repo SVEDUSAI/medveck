@@ -116,17 +116,17 @@ export async function superAdminRoutes(fastify: FastifyInstance) {
   // ─── Platform Stats ───────────────────────────────
   fastify.get('/platform-stats', async () => {
     const [totalUsers, totalOrders, totalConsults, totalLabBookings, totalAmbulance,
-           totalRevenue, onlineDrivers, activeVendors, activeLabs] = await Promise.all([
-      prisma.user.count(),
-      prisma.medicineOrder.count(),
-      prisma.consultation.count(),
-      prisma.labBooking.count(),
-      prisma.ambulanceRequest.count(),
-      prisma.medicineOrder.aggregate({ _sum: { totalAmount: true } }),
-      prisma.user.count({ where: { role: 'DRIVER', isOnline: true } }),
-      prisma.user.count({ where: { role: 'VENDOR', isOpen: true } }),
-      prisma.user.count({ where: { role: 'LAB', isActive: true } }),
-    ]);
+      totalRevenue, onlineDrivers, activeVendors, activeLabs] = await Promise.all([
+        prisma.user.count(),
+        prisma.medicineOrder.count(),
+        prisma.consultation.count(),
+        prisma.labBooking.count(),
+        prisma.ambulanceRequest.count(),
+        prisma.medicineOrder.aggregate({ _sum: { totalAmount: true } }),
+        prisma.user.count({ where: { role: 'DRIVER', isOnline: true } }),
+        prisma.user.count({ where: { role: 'VENDOR', isOpen: true } }),
+        prisma.user.count({ where: { role: 'LAB', isActive: true } }),
+      ]);
 
     const usersByRole = await prisma.user.groupBy({
       by: ['role'],
@@ -145,7 +145,7 @@ export async function superAdminRoutes(fastify: FastifyInstance) {
         onlineDrivers,
         activeVendors,
         activeLabs,
-        usersByRole: Object.fromEntries(usersByRole.map((r) => [r.role, r._count])),
+        usersByRole: Object.fromEntries(usersByRole.map((r: any) => [r.role, typeof r._count === 'number' ? r._count : r._count?._all || 0])),
       },
     };
   });
@@ -153,7 +153,7 @@ export async function superAdminRoutes(fastify: FastifyInstance) {
   // ─── Platform Config: Get ─────────────────────────
   fastify.get('/platform-config', async () => {
     const configs = await prisma.platformConfig.findMany();
-    const configMap = Object.fromEntries(configs.map((c) => [c.key, c.value]));
+    const configMap = Object.fromEntries(configs.map((c: { key: string; value: any }) => [c.key, c.value]));
     return { success: true, data: configMap };
   });
 

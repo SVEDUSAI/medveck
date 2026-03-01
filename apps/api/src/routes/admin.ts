@@ -31,7 +31,7 @@ export async function adminRoutes(fastify: FastifyInstance) {
         }),
       ]);
 
-    const todayRevenue = todayOrders.reduce((sum, o) => sum + o.totalAmount, 0);
+    const todayRevenue = (todayOrders as { totalAmount: number }[]).reduce((sum, o) => sum + o.totalAmount, 0);
 
     return {
       success: true,
@@ -319,16 +319,16 @@ export async function adminRoutes(fastify: FastifyInstance) {
     const startOfMonth = new Date(now); startOfMonth.setDate(1);
 
     const [todayOrders, weekOrders, monthOrders, totalOrders,
-           todayConsults, weekConsults, newUsersWeek, newUsersMonth] = await Promise.all([
-      prisma.medicineOrder.aggregate({ where: { createdAt: { gte: startOfDay } }, _sum: { totalAmount: true }, _count: true }),
-      prisma.medicineOrder.aggregate({ where: { createdAt: { gte: startOfWeek } }, _sum: { totalAmount: true }, _count: true }),
-      prisma.medicineOrder.aggregate({ where: { createdAt: { gte: startOfMonth } }, _sum: { totalAmount: true }, _count: true }),
-      prisma.medicineOrder.aggregate({ _sum: { totalAmount: true }, _count: true }),
-      prisma.consultation.count({ where: { createdAt: { gte: startOfDay } } }),
-      prisma.consultation.count({ where: { createdAt: { gte: startOfWeek } } }),
-      prisma.user.count({ where: { createdAt: { gte: startOfWeek }, role: 'PATIENT' } }),
-      prisma.user.count({ where: { createdAt: { gte: startOfMonth }, role: 'PATIENT' } }),
-    ]);
+      todayConsults, weekConsults, newUsersWeek, newUsersMonth] = await Promise.all([
+        prisma.medicineOrder.aggregate({ where: { createdAt: { gte: startOfDay } }, _sum: { totalAmount: true }, _count: true }),
+        prisma.medicineOrder.aggregate({ where: { createdAt: { gte: startOfWeek } }, _sum: { totalAmount: true }, _count: true }),
+        prisma.medicineOrder.aggregate({ where: { createdAt: { gte: startOfMonth } }, _sum: { totalAmount: true }, _count: true }),
+        prisma.medicineOrder.aggregate({ _sum: { totalAmount: true }, _count: true }),
+        prisma.consultation.count({ where: { createdAt: { gte: startOfDay } } }),
+        prisma.consultation.count({ where: { createdAt: { gte: startOfWeek } } }),
+        prisma.user.count({ where: { createdAt: { gte: startOfWeek }, role: 'PATIENT' } }),
+        prisma.user.count({ where: { createdAt: { gte: startOfMonth }, role: 'PATIENT' } }),
+      ]);
 
     return {
       success: true,
@@ -365,7 +365,7 @@ export async function adminRoutes(fastify: FastifyInstance) {
     // Broadcast to all
     const users = await prisma.user.findMany({ where: { isActive: true }, select: { id: true } });
     await prisma.notification.createMany({
-      data: users.map((u) => ({ userId: u.id, title, body, type })),
+      data: users.map((u: { id: string }) => ({ userId: u.id, title, body, type })),
     });
     return { success: true, message: `Notification sent to ${users.length} users` };
   });
