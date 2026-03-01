@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc -l /Users/abcom/MedVek/src/app/dashboard/user/*/page.tsx)",
+      "Bash(npx create-turbo@latest . --example basic)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(curl -s http://localhost:5173/src/main.tsx)",
+      "Bash(pkill -f \"vite\")",
+      "Bash(ls -la /Users/abcom/MedVek_V2/apps/mobile/app/\\\\\\(app\\\\\\)/\\\\\\(doctor\\\\\\)/)"
+    ]
+  }
+}
