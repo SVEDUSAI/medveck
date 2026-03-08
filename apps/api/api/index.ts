@@ -1,27 +1,23 @@
+import serverless from 'serverless-http';
 import { bootstrap } from '../src/index.js';
 
 let app: any;
+let handler: any;
 
-export default async function handler(req: any, res: any) {
+export const handlerFunc = async (event: any, context: any) => {
     try {
         if (!app) {
-            console.log('API: Bootstrap starting...');
+            console.log('API: Handler initializing bootstrap...');
             const { fastify } = await bootstrap();
             app = fastify;
-            console.log('API: Bootstrap finished.');
+            handler = serverless(app as any);
+            console.log('API: Handler initialization complete.');
         }
-
-        await app.ready();
-        app.server.emit('request', req, res);
+        return await handler(event, context);
     } catch (err: any) {
-        console.error('API HANDLER ERROR:', err);
-        res.statusCode = 500;
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify({
-            success: false,
-            error: 'Internal Server Error',
-            message: err.message,
-            stack: err.stack
-        }));
+        console.error('NETLIFY HANDLER ERROR:', err);
+        throw err;
     }
-}
+};
+
+export default handlerFunc;

@@ -23,6 +23,7 @@ declare module 'fastify' {
 const PORT = Number(process.env.PORT) || 4000;
 
 export async function bootstrap() {
+  console.log('API: Starting bootstrap...');
   const fastify = Fastify({ logger: true });
 
   const httpServer = createServer(fastify.server);
@@ -65,6 +66,8 @@ export async function bootstrap() {
   await fastify.register(superAdminRoutes, { prefix: '/api/super-admin' });
   await fastify.register(catalogRoutes, { prefix: '/api/catalog' });
 
+  console.log('API: Routes registered.');
+
   // Socket.io (Only in non-Vercel environment)
   if (!process.env.VERCEL) {
     const io = new Server(httpServer, {
@@ -79,15 +82,15 @@ export async function bootstrap() {
   return { fastify, httpServer };
 }
 
-// Only run bootstrap if not in Vercel environment
-if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
-  bootstrap().then(({ fastify, httpServer }) => {
+// Start the server unless we're in a serverless environment (Vercel)
+if (!process.env.VERCEL) {
+  bootstrap().then(({ fastify }) => {
     fastify.listen({ port: PORT, host: '0.0.0.0' }, (err) => {
       if (err) {
         console.error(err);
         process.exit(1);
       }
-      console.log(`🚀 MedVek API running on http://localhost:${PORT}`);
+      console.log(`🚀 MedVek API running on http://0.0.0.0:${PORT}`);
     });
   }).catch((err) => {
     console.error('Failed to start server:', err);

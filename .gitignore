@@ -10,3 +10,7 @@ dist
 web-build
 .DS_Store
 *.local
+.env*.local
+
+# Local Netlify folder
+.netlify

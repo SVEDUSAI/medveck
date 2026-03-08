@@ -1,11 +1,7 @@
 {
     "version": 2,
-    "name": "medvek-monorepo",
+    "name": "medvek-v2-web",
     "builds": [
-        {
-            "src": "apps/api/api/index.ts",
-            "use": "@vercel/node"
-        },
         {
             "src": "apps/web/package.json",
             "use": "@vercel/static-build",
@@ -16,12 +12,12 @@
     ],
     "rewrites": [
         {
-            "source": "/api/(.*)",
-            "destination": "/apps/api/api/index.ts"
+            "source": "/assets/(.*)",
+            "destination": "/assets/$1"
         },
         {
             "source": "/(.*)",
-            "destination": "/apps/web/$1"
+            "destination": "/index.html"
         }
     ]
 }

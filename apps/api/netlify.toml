@@ -1,0 +1,11 @@
+[build]
+  command = "npm run build --filter=@medvek/api"
+  publish = "apps/api/dist"
+
+[functions]
+  directory = "apps/api/dist"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/index/:splat"
+  status = 200

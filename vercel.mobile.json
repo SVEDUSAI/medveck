@@ -1,0 +1,19 @@
+{
+    "version": 2,
+    "name": "medvek-v2-mobile",
+    "builds": [
+        {
+            "src": "apps/mobile/package.json",
+            "use": "@vercel/static-build",
+            "config": {
+                "distDir": "dist"
+            }
+        }
+    ],
+    "rewrites": [
+        {
+            "source": "/(.*)",
+            "destination": "/apps/mobile/$1"
+        }
+    ]
+}
