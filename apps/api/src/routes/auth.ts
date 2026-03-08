@@ -28,8 +28,23 @@ export async function authRoutes(fastify: FastifyInstance) {
     return {
       success: true,
       message: 'OTP sent successfully',
-      ...(process.env.NODE_ENV === 'development' ? { devOtp: code } : {}),
+      // Always return devOtp until SMS gateway is configured
+      devOtp: code,
     };
+  });
+
+  // ─── Get Dev OTP (for testing — remove when SMS goes live) ──
+  fastify.get('/dev-otp', async (request, reply) => {
+    const { phone } = request.query as { phone: string };
+    if (!phone) return reply.code(400).send({ success: false, error: 'phone required' });
+
+    const latest = await prisma.otp.findFirst({
+      where: { phone, used: false, expiresAt: { gt: new Date() } },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (!latest) return reply.code(404).send({ success: false, error: 'No active OTP found' });
+    return { success: true, otp: latest.code, expiresAt: latest.expiresAt };
   });
 
   // ─── Verify OTP (patients) ────────────────────────
