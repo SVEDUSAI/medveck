@@ -10,6 +10,7 @@ export function LoginPage() {
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
+  const [devOtp, setDevOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -23,7 +24,8 @@ export function LoginPage() {
     setLoading(true);
     setError('');
     try {
-      await api.post('/auth/send-otp', { phone });
+      const res: any = await api.post('/auth/send-otp', { phone });
+      if (res.devOtp) setDevOtp(res.devOtp);
       setStep('otp');
     } catch (err: any) {
       setError(err.message || 'Failed to send OTP');
@@ -57,9 +59,9 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFF8F0] flex flex-col font-body">
-      {/* Top section: Dark Maroon Background */}
-      <div className="bg-[#8B2635] pt-16 pb-24 px-6 rounded-b-[48px]">
+    <div className="min-h-screen bg-surface-100 flex flex-col font-body">
+      {/* Top section: MedVek Navy Background */}
+      <div className="bg-navy-500 pt-16 pb-24 px-6 rounded-b-[48px]">
         <div className="max-w-sm mx-auto text-center">
           <div className="w-20 h-20 bg-white/10 rounded-[24px] flex items-center justify-center mx-auto mb-6 backdrop-blur-sm shadow-inner">
             <span className="text-white font-extrabold text-4xl font-heading">M</span>
@@ -75,12 +77,19 @@ export function LoginPage() {
           <h2 className="font-heading font-extrabold text-2xl text-gray-900 mb-2">
             {step === 'phone' ? 'Welcome back' : 'Verify OTP'}
           </h2>
-          <p className="text-[17px] text-gray-400 font-medium mb-8 leading-relaxed">
+          <p className="text-[17px] text-gray-400 font-medium mb-4 leading-relaxed">
             {step === 'phone'
               ? 'Enter your phone number to continue'
               : <>Code sent to <span className="font-semibold text-gray-700">+91 {phone}</span></>
             }
           </p>
+
+          {step === 'otp' && devOtp && (
+            <div className="bg-primary-50 border border-primary-100 rounded-xl p-3 mb-6 text-center">
+              <p className="text-primary-600 text-sm font-semibold mb-1 uppercase tracking-wider">Test OTP (No SMS yet)</p>
+              <p className="text-primary-700 text-2xl font-black tracking-[0.5em]">{devOtp}</p>
+            </div>
+          )}
 
           {step === 'phone' ? (
             <>
@@ -95,7 +104,7 @@ export function LoginPage() {
                 className="h-14 text-lg font-medium rounded-2xl border-gray-200 focus:border-primary-400"
               />
               <Button
-                className="w-full h-14 mt-6 text-lg font-bold bg-[#8B2635] hover:bg-[#73202D] rounded-2xl shadow-xl active:scale-[0.98] transition-all"
+                className="w-full h-14 mt-6 text-lg font-bold bg-navy-500 hover:bg-navy-600 rounded-2xl shadow-xl active:scale-[0.98] transition-all"
                 onClick={sendOtp}
                 loading={loading}
               >
@@ -104,14 +113,15 @@ export function LoginPage() {
             </>
           ) : (
             <>
-              <div className="flex gap-2 mb-2">
+              <div className="flex gap-1.5 mb-2 w-full justify-between">
                 {[0, 1, 2, 3, 4, 5].map((i) => (
                   <input
                     key={i}
                     type="text"
+                    inputMode="numeric"
                     maxLength={1}
                     value={otp[i] || ''}
-                    className="w-12 h-14 text-center text-xl font-bold border-2 border-gray-200 rounded-xl
+                    className="flex-1 min-w-0 h-12 text-center text-xl font-bold border-2 border-gray-200 rounded-xl
                                focus:border-primary-400 focus:ring-2 focus:ring-primary-200 outline-none transition-all"
                     onChange={(e) => {
                       const val = e.target.value.replace(/\D/g, '');
@@ -147,7 +157,7 @@ export function LoginPage() {
         {/* Staff login link */}
         <p className="text-center text-[15px] font-medium text-gray-400 mt-8">
           Doctor / Vendor / Lab?{' '}
-          <button onClick={() => navigate('/staff-login')} className="text-[#8B2635] font-bold hover:underline transition-all">
+          <button onClick={() => navigate('/staff-login')} className="text-primary-500 font-bold hover:underline transition-all">
             Staff Login
           </button>
         </p>
@@ -156,7 +166,7 @@ export function LoginPage() {
         <div className="mt-auto mb-10 text-center">
           <button
             onClick={devLogin}
-            className="text-[14px] text-gray-300 hover:text-[#8B2635]/50 font-medium transition-colors"
+            className="text-[14px] text-gray-300 hover:text-primary-400/60 font-medium transition-colors"
           >
             [Dev] Skip Login →
           </button>
